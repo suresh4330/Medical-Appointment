@@ -1,18 +1,22 @@
 @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Manrope:wght@400;600;700&display=swap");
 
 :root {
-  --bg: #f2f6fb;
-  --surface: rgba(255, 255, 255, 0.86);
+  --bg: #f8fafc;
+  --surface: rgba(255, 255, 255, 0.9);
   --surface-solid: #ffffff;
-  --text: #11203b;
-  --muted: #4d5f80;
-  --line: #d6dfec;
-  --primary: #0f766e;
-  --primary-dark: #0a4f4a;
-  --success: #15803d;
-  --danger: #b91c1c;
-  --pending: #b45309;
-  --shadow: 0 18px 50px rgba(15, 40, 79, 0.12);
+  --text: #0f172a;
+  --muted: #64748b;
+  --line: rgba(226, 232, 240, 0.8);
+  --primary: #0d9488;
+  --primary-dark: #0f766e;
+  --primary-light: #2dd4bf;
+  --success: #10b981;
+  --danger: #ef4444;
+  --pending: #f59e0b;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  --glass-border: 1px solid rgba(255, 255, 255, 0.7);
 }
 
 * {
@@ -29,7 +33,9 @@ body,
 body {
   font-family: "Manrope", "Segoe UI", sans-serif;
   color: var(--text);
-  background: radial-gradient(circle at 10% 20%, #e1f5f4 0, #f2f6fb 35%, #f8fafc 100%);
+  background: radial-gradient(circle at 0% 0%, #f0f9ff 0%, #f8fafc 50%, #f1f5f9 100%);
+  background-attachment: fixed;
+  overflow-x: hidden;
 }
 
 h1,
@@ -97,9 +103,14 @@ a:hover {
 
 .glass {
   background: var(--surface);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(20px);
+  border: var(--glass-border);
   box-shadow: var(--shadow);
+  transition: box-shadow 0.3s ease;
+}
+
+.glass:hover {
+  box-shadow: var(--shadow-lg);
 }
 
 .auth-card {
@@ -174,8 +185,13 @@ button:focus {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--primary), #159f95);
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
   color: #ffffff;
+  box-shadow: 0 4px 6px -1px rgba(13, 148, 136, 0.3);
+}
+
+.btn-primary:hover {
+  box-shadow: 0 10px 15px -3px rgba(13, 148, 136, 0.4);
 }
 
 .btn-success {
@@ -311,6 +327,36 @@ button:focus {
 .status-rejected {
   background: #fee2e2;
   color: var(--danger);
+}
+
+/* Loader Styles */
+.loader-container {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(248, 250, 252, 0.8);
+  backdrop-filter: blur(8px);
+  z-index: 9999;
+  gap: 1.5rem;
+}
+
+.loader-orb {
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  box-shadow: 0 0 20px rgba(13, 148, 136, 0.4);
+}
+
+.loader-text {
+  font-family: "Space Grotesk", sans-serif;
+  font-weight: 600;
+  color: var(--primary-dark);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-size: 0.85rem;
 }
 
 @media (max-width: 880px) {

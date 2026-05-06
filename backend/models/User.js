@@ -9,7 +9,8 @@ const userSchema = new mongoose.Schema(
       type: String,
       enum: ["patient", "doctor"],
       default: "patient"
-    }
+    },
+    department: { type: String, default: "" }
   },
   { timestamps: true }
 );

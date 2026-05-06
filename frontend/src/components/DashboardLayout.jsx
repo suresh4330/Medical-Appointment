@@ -1,4 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 
 function DashboardLayout({ title, subtitle, role, children }) {
   const navigate = useNavigate();
@@ -10,13 +11,37 @@ function DashboardLayout({ title, subtitle, role, children }) {
     navigate("/");
   };
 
+  const pageVariants = {
+    hidden: { opacity: 0 },
+    visible: { 
+      opacity: 1,
+      transition: { duration: 0.5, staggerChildren: 0.1 }
+    },
+    exit: { 
+      opacity: 0,
+      y: -20,
+      transition: { duration: 0.3 }
+    }
+  };
+
+  const headerVariants = {
+    hidden: { y: -20, opacity: 0 },
+    visible: { y: 0, opacity: 1, transition: { duration: 0.6, ease: "easeOut" } }
+  };
+
   return (
-    <div className="page-shell">
+    <motion.div 
+      variants={pageVariants}
+      initial="hidden"
+      animate="visible"
+      exit="exit"
+      className="page-shell"
+    >
       <div className="bg-orb bg-orb-left" />
       <div className="bg-orb bg-orb-right" />
 
       <div className="container dashboard-wrap">
-        <header className="topbar glass">
+        <motion.header variants={headerVariants} className="topbar glass">
           <div>
             <p className="eyebrow">Medical Appointment Management</p>
             <h1>{title}</h1>
@@ -28,15 +53,26 @@ function DashboardLayout({ title, subtitle, role, children }) {
             <Link to={role === "doctor" ? "/doctor" : "/patient"} className="ghost-link">
               Dashboard
             </Link>
-            <button className="btn btn-danger" onClick={handleLogout}>
+            <motion.button 
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="btn btn-danger" 
+              onClick={handleLogout}
+            >
               Logout
-            </button>
+            </motion.button>
           </div>
-        </header>
+        </motion.header>
 
-        {children}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+        >
+          {children}
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 

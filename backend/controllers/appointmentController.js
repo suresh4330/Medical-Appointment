@@ -48,7 +48,7 @@ exports.createAppointment = async (req, res) => {
     }
 
     const doctor = await User.findOne({
-      name: doctorName,
+      name: { $regex: new RegExp(`^${doctorName.trim()}$`, "i") },
       role: "doctor"
     });
 

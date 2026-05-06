@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import API from "../services/api";
 import DashboardLayout from "../components/DashboardLayout";
+import { motion, AnimatePresence } from "framer-motion";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const DEPARTMENTS = [
   "Cardiology",
@@ -59,10 +61,6 @@ function PatientDashboard() {
   const fetchDoctors = useCallback(async () => {
     const res = await API.get("/auth/doctors");
     setDoctors(res.data);
-    setForm((prev) => ({
-      ...prev,
-      doctorName: prev.doctorName || res.data?.[0]?.name || ""
-    }));
   }, []);
 
   useEffect(() => {
@@ -105,21 +103,48 @@ function PatientDashboard() {
     }
   };
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { 
+      opacity: 1,
+      transition: { staggerChildren: 0.15, delayChildren: 0.2 }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { 
+      y: 0, 
+      opacity: 1,
+      transition: { duration: 0.5, ease: "easeOut" }
+    }
+  };
+
   return (
-    <DashboardLayout
-      title="Patient Dashboard"
-      subtitle="Create appointment requests and track status updates from your doctor."
-      role="patient"
-    >
-      <div className="dashboard-grid">
-        <section className="card glass">
+    <>
+      <AnimatePresence>
+        {loading && <LoadingSpinner />}
+      </AnimatePresence>
+
+      <DashboardLayout
+        title="Patient Dashboard"
+        subtitle="Create appointment requests and track status updates from your doctor."
+        role="patient"
+      >
+      <motion.div 
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="dashboard-grid"
+      >
+        <motion.section variants={itemVariants} className="card glass">
           <h3>Book Appointment</h3>
           <form className="form-grid" onSubmit={handleBook}>
-            <label>
+            <motion.label variants={itemVariants}>
               Department
               <select
                 value={form.department}
-                onChange={(e) => setForm((prev) => ({ ...prev, department: e.target.value }))}
+                onChange={(e) => setForm((prev) => ({ ...prev, department: e.target.value, doctorName: "" }))}
               >
                 {DEPARTMENTS.map((department) => (
                   <option key={department} value={department}>
@@ -127,23 +152,31 @@ function PatientDashboard() {
                   </option>
                 ))}
               </select>
-            </label>
+            </motion.label>
 
-            <label>
+            <motion.label variants={itemVariants}>
               Doctor
               <select
                 value={form.doctorName}
                 onChange={(e) => setForm((prev) => ({ ...prev, doctorName: e.target.value }))}
               >
-                {doctors.map((doctor) => (
-                  <option key={doctor._id} value={doctor.name}>
-                    {doctor.name}
-                  </option>
-                ))}
+                <option value="">-- Select a Doctor --</option>
+                {doctors
+                  .filter((d) => d.department === form.department)
+                  .map((doctor) => (
+                    <option key={doctor._id} value={doctor.name}>
+                      {doctor.name}
+                    </option>
+                  ))}
               </select>
-            </label>
+              {doctors.filter((d) => d.department === form.department).length === 0 && (
+                <p className="helper-text" style={{ color: "#94a3b8", fontSize: "0.8rem", marginTop: "4px" }}>
+                  No doctors registered for this department yet.
+                </p>
+              )}
+            </motion.label>
 
-            <label>
+            <motion.label variants={itemVariants}>
               Date
               <input
                 type="date"
@@ -151,9 +184,9 @@ function PatientDashboard() {
                 value={form.date}
                 onChange={(e) => setForm((prev) => ({ ...prev, date: e.target.value }))}
               />
-            </label>
+            </motion.label>
 
-            <label>
+            <motion.label variants={itemVariants}>
               Time Slot
               <select
                 value={form.timeSlot}
@@ -165,47 +198,91 @@ function PatientDashboard() {
                   </option>
                 ))}
               </select>
-            </label>
+            </motion.label>
 
-            {error && <p className="error-text">{error}</p>}
-            {message && <p className="success-text">{message}</p>}
+            <AnimatePresence mode="wait">
+              {error && (
+                <motion.p 
+                  initial={{ opacity: 0, height: 0, x: -10 }}
+                  animate={{ opacity: 1, height: "auto", x: 0 }}
+                  exit={{ opacity: 0, height: 0, x: 10 }}
+                  className="error-text"
+                >
+                  {error}
+                </motion.p>
+              )}
+              {message && (
+                <motion.p 
+                  initial={{ opacity: 0, height: 0, x: 10 }}
+                  animate={{ opacity: 1, height: "auto", x: 0 }}
+                  exit={{ opacity: 0, height: 0, x: -10 }}
+                  className="success-text"
+                >
+                  {message}
+                </motion.p>
+              )}
+            </AnimatePresence>
 
-            <button className="btn btn-primary" type="submit" disabled={loading}>
+            <motion.button 
+              variants={itemVariants}
+              whileHover={{ scale: 1.02, boxShadow: "0 10px 15px -3px rgba(13, 148, 136, 0.4)" }}
+              whileTap={{ scale: 0.98 }}
+              className="btn btn-primary" 
+              type="submit" 
+              disabled={loading}
+            >
               {loading ? "Please wait..." : "Book Appointment"}
-            </button>
+            </motion.button>
           </form>
-        </section>
+        </motion.section>
 
-        <section className="card glass">
+        <motion.section variants={itemVariants} className="card glass">
           <h3>My Appointments</h3>
 
           {sortedAppointments.length === 0 ? (
-            <p className="empty-state">No appointments yet.</p>
+            <motion.p 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              className="empty-state"
+            >
+              No appointments yet.
+            </motion.p>
           ) : (
             <div className="list-grid">
-              {sortedAppointments.map((appointment) => (
-                <article className="appointment-item" key={appointment._id}>
-                  <div>
-                    <h4>{appointment.doctorName}</h4>
-                    <p>{appointment.department}</p>
-                  </div>
-                  <div>
-                    <p>{appointment.date}</p>
-                    <p>{appointment.timeSlot}</p>
-                    {appointment.status === "approved" && appointment.approvedTimeSlot && (
-                      <p>Approved Time: {appointment.approvedTimeSlot}</p>
-                    )}
-                  </div>
-                  <span className={`status-badge status-${appointment.status}`}>
-                    {appointment.status}
-                  </span>
-                </article>
-              ))}
+              <AnimatePresence>
+                {sortedAppointments.map((appointment) => (
+                  <motion.article 
+                    layout
+                    initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
+                    whileHover={{ y: -2, boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)" }}
+                    className="appointment-item" 
+                    key={appointment._id}
+                  >
+                    <div>
+                      <h4>{appointment.doctorName}</h4>
+                      <p className="muted">{appointment.department}</p>
+                    </div>
+                    <div style={{ textAlign: "right" }}>
+                      <p style={{ fontWeight: 600 }}>{appointment.date}</p>
+                      <p className="muted" style={{ fontSize: "0.85rem" }}>{appointment.timeSlot}</p>
+                    </div>
+                    <motion.span 
+                      layout
+                      className={`status-badge status-${appointment.status}`}
+                    >
+                      {appointment.status}
+                    </motion.span>
+                  </motion.article>
+                ))}
+              </AnimatePresence>
             </div>
           )}
-        </section>
-      </div>
+        </motion.section>
+      </motion.div>
     </DashboardLayout>
+    </>
   );
 }
 

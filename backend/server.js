@@ -25,4 +25,8 @@ connectDB().then(() => {
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
   });
+}).catch((error) => {
+  console.error("Failed to connect to MongoDB. Server not started.");
+  console.error("Error details:", error.message);
+  process.exit(1);
 });

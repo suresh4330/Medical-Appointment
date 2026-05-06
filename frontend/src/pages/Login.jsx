@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import API from "../services/api";
+import { motion, AnimatePresence } from "framer-motion";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 function Login() {
   const navigate = useNavigate();
@@ -23,7 +25,10 @@ function Login() {
 
     try {
       setLoading(true);
-      const { data } = await API.post("/auth/login", form);
+      const { data } = await API.post("/auth/login", {
+        email: form.email.trim(),
+        password: form.password.trim()
+      });
 
       localStorage.setItem("token", data.token);
       localStorage.setItem("role", data.role);
@@ -37,18 +42,71 @@ function Login() {
     }
   };
 
+  const containerVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.6,
+        ease: [0.22, 1, 0.36, 1],
+        staggerChildren: 0.12,
+      },
+    },
+    exit: {
+      opacity: 0,
+      scale: 0.95,
+      transition: { duration: 0.4, ease: "easeInOut" }
+    }
+  };
+
+  const childVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+  };
+
   return (
-    <div className="auth-page">
-      <div className="bg-orb bg-orb-left" />
-      <div className="bg-orb bg-orb-right" />
+    <>
+      <AnimatePresence>
+        {loading && <LoadingSpinner />}
+      </AnimatePresence>
+      <motion.div 
+      initial="hidden"
+      animate="visible"
+      exit="exit"
+      className="auth-page"
+    >
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 0.4, scale: 1.2 }}
+        transition={{ duration: 3, repeat: Infinity, repeatType: "mirror" }}
+        className="bg-orb bg-orb-left" 
+      />
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 0.4, scale: 1.1 }}
+        transition={{ duration: 4, repeat: Infinity, repeatType: "mirror", delay: 1 }}
+        className="bg-orb bg-orb-right" 
+      />
 
-      <div className="auth-card glass">
-        <p className="eyebrow">Welcome Back</p>
-        <h2>Sign in to continue</h2>
-        <p className="subtitle">Book and manage appointments with role-based access.</p>
+      <motion.div 
+        variants={containerVariants}
+        className="auth-card glass"
+      >
+        <motion.p variants={childVariants} className="eyebrow">
+          Welcome Back
+        </motion.p>
+        <motion.h2 variants={childVariants}>Sign in to continue</motion.h2>
+        <motion.p variants={childVariants} className="subtitle">
+          Book and manage appointments with role-based access.
+        </motion.p>
 
-        <form className="form-grid" onSubmit={handleSubmit}>
-          <label>
+        <motion.form 
+          variants={childVariants}
+          className="form-grid" 
+          onSubmit={handleSubmit}
+        >
+          <motion.label variants={childVariants}>
             Email
             <input
               type="email"
@@ -57,9 +115,9 @@ function Login() {
               value={form.email}
               onChange={handleChange}
             />
-          </label>
+          </motion.label>
 
-          <label>
+          <motion.label variants={childVariants}>
             Password
             <input
               type="password"
@@ -68,20 +126,39 @@ function Login() {
               value={form.password}
               onChange={handleChange}
             />
-          </label>
+          </motion.label>
 
-          {error && <p className="error-text">{error}</p>}
+          {error && (
+            <motion.p 
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="error-text"
+            >
+              {error}
+            </motion.p>
+          )}
 
-          <button className="btn btn-primary" type="submit" disabled={loading}>
+          <motion.button 
+            variants={childVariants}
+            whileHover={{ scale: 1.02, boxShadow: "0 10px 15px -3px rgba(13, 148, 136, 0.4)" }}
+            whileTap={{ scale: 0.98 }}
+            className="btn btn-primary" 
+            type="submit" 
+            disabled={loading}
+          >
             {loading ? "Signing in..." : "Login"}
-          </button>
-        </form>
+          </motion.button>
+        </motion.form>
 
-        <p className="helper-text">
+        <motion.p 
+          variants={childVariants}
+          className="helper-text"
+        >
           New user? <Link to="/register">Create an account</Link>
-        </p>
-      </div>
-    </div>
+        </motion.p>
+      </motion.div>
+    </motion.div>
+    </>
   );
 }
 

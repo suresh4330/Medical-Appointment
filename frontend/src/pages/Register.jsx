@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import API from "../services/api";
+import { motion, AnimatePresence } from "framer-motion";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 function Register() {
   const navigate = useNavigate();
@@ -8,8 +10,18 @@ function Register() {
     name: "",
     email: "",
     password: "",
-    role: "patient"
+    role: "patient",
+    department: "Cardiology"
   });
+
+  const DEPARTMENTS = [
+    "Cardiology",
+    "Dermatology",
+    "General Medicine",
+    "Neurology",
+    "Orthopedics",
+    "Pediatrics"
+  ];
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
@@ -30,7 +42,11 @@ function Register() {
 
     try {
       setLoading(true);
-      await API.post("/auth/register", form);
+      await API.post("/auth/register", {
+        ...form,
+        email: form.email.trim(),
+        password: form.password.trim()
+      });
       setSuccess("Registration successful. Redirecting to login...");
       setTimeout(() => navigate("/"), 900);
     } catch (err) {
@@ -40,17 +56,68 @@ function Register() {
     }
   };
 
+  const containerVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.6,
+        ease: [0.22, 1, 0.36, 1],
+        staggerChildren: 0.1,
+      },
+    },
+    exit: {
+      opacity: 0,
+      scale: 0.95,
+      transition: { duration: 0.4, ease: "easeInOut" }
+    }
+  };
+
+  const childVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+  };
+
   return (
-    <div className="auth-page">
-      <div className="bg-orb bg-orb-left" />
-      <div className="bg-orb bg-orb-right" />
+    <>
+      <AnimatePresence>
+        {loading && <LoadingSpinner />}
+      </AnimatePresence>
+      <motion.div 
+      initial="hidden"
+      animate="visible"
+      exit="exit"
+      className="auth-page"
+    >
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 0.4, scale: 1.2 }}
+        transition={{ duration: 3, repeat: Infinity, repeatType: "mirror" }}
+        className="bg-orb bg-orb-left" 
+      />
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 0.4, scale: 1.1 }}
+        transition={{ duration: 4, repeat: Infinity, repeatType: "mirror", delay: 1 }}
+        className="bg-orb bg-orb-right" 
+      />
 
-      <div className="auth-card glass">
-        <p className="eyebrow">Create Account</p>
-        <h2>Start using the portal</h2>
+      <motion.div 
+        variants={containerVariants}
+        className="auth-card glass"
+      >
+        <motion.p variants={childVariants} className="eyebrow">
+          Create Account
+        </motion.p>
+        <motion.h2 variants={childVariants}>Start using the portal</motion.h2>
 
-        <form className="form-grid" onSubmit={handleSubmit}>
-          <label>
+        <motion.form 
+          variants={childVariants}
+          className="form-grid" 
+          onSubmit={handleSubmit}
+        >
+          <motion.label variants={childVariants}>
             Full Name
             <input
               type="text"
@@ -59,9 +126,9 @@ function Register() {
               value={form.name}
               onChange={handleChange}
             />
-          </label>
+          </motion.label>
 
-          <label>
+          <motion.label variants={childVariants}>
             Email
             <input
               type="email"
@@ -70,9 +137,9 @@ function Register() {
               value={form.email}
               onChange={handleChange}
             />
-          </label>
+          </motion.label>
 
-          <label>
+          <motion.label variants={childVariants}>
             Password
             <input
               type="password"
@@ -81,29 +148,69 @@ function Register() {
               value={form.password}
               onChange={handleChange}
             />
-          </label>
+          </motion.label>
 
-          <label>
+          <motion.label variants={childVariants}>
             Role
             <select name="role" value={form.role} onChange={handleChange}>
               <option value="patient">Patient</option>
               <option value="doctor">Doctor</option>
             </select>
-          </label>
+          </motion.label>
 
-          {error && <p className="error-text">{error}</p>}
-          {success && <p className="success-text">{success}</p>}
+          {form.role === "doctor" && (
+            <motion.label variants={childVariants}>
+              Department
+              <select name="department" value={form.department} onChange={handleChange}>
+                {DEPARTMENTS.map((dept) => (
+                  <option key={dept} value={dept}>
+                    {dept}
+                  </option>
+                ))}
+              </select>
+            </motion.label>
+          )}
 
-          <button className="btn btn-primary" type="submit" disabled={loading}>
+          {error && (
+            <motion.p 
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="error-text"
+            >
+              {error}
+            </motion.p>
+          )}
+          {success && (
+            <motion.p 
+              initial={{ opacity: 0, x: 10 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="success-text"
+            >
+              {success}
+            </motion.p>
+          )}
+
+          <motion.button 
+            variants={childVariants}
+            whileHover={{ scale: 1.02, boxShadow: "0 10px 15px -3px rgba(13, 148, 136, 0.4)" }}
+            whileTap={{ scale: 0.98 }}
+            className="btn btn-primary" 
+            type="submit" 
+            disabled={loading}
+          >
             {loading ? "Creating account..." : "Register"}
-          </button>
-        </form>
+          </motion.button>
+        </motion.form>
 
-        <p className="helper-text">
+        <motion.p 
+          variants={childVariants}
+          className="helper-text"
+        >
           Already registered? <Link to="/">Login</Link>
-        </p>
-      </div>
-    </div>
+        </motion.p>
+      </motion.div>
+    </motion.div>
+    </>
   );
 }
 

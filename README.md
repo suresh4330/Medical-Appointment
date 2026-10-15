@@ -6,6 +6,9 @@
 ![auth](https://img.shields.io/badge/auth-JWT-orange?logo=jsonwebtokens)
 ![license](https://img.shields.io/badge/license-MIT-blue)
 
+> 🌐 **Live Application**: [https://medical-appointment-chi.vercel.app](https://medical-appointment-chi.vercel.app)  
+> ⚙️ **Backend API**: [https://medical-appointment-backend-p1jj.onrender.com](https://medical-appointment-backend-p1jj.onrender.com)
+
 **Medical Appointment Management System** is a full-stack role-based appointment platform that enables patients to discover and book doctors by department, and allows doctors to manage, approve, or reject appointment requests — all through a clean, animated interface powered by Framer Motion.
 
 ---

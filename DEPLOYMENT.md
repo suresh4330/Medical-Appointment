@@ -51,7 +51,7 @@ Click **"Create Web Service"** → Wait ~2 minutes.
 
 You'll get a URL like:
 ```
-https://medical-appointment-backend.onrender.com
+https://medical-appointment-backend-p1jj.onrender.com
 ```
 > ⚠️ **Copy this URL** — you need it for the frontend step.
 
@@ -90,16 +90,14 @@ In Vercel → **Environment Variables** section, add:
 
 | Key | Value |
 |-----|-------|
-| `REACT_APP_API_URL` | `https://medical-appointment-backend.onrender.com/api` |
-
-> Replace with **your actual Render URL** from Step 1.4
+| `REACT_APP_API_URL` | `https://medical-appointment-backend-p1jj.onrender.com/api` |
 
 ### 3.4 Deploy
 Click **"Deploy"** → Wait ~2 minutes.
 
-You'll get a live URL like:
+Your live application URL:
 ```
-https://medical-appointment.vercel.app
+https://medical-appointment-chi.vercel.app
 ```
 
 ---

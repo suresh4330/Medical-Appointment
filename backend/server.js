@@ -12,7 +12,11 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(cors({
-  origin: process.env.CLIENT_URL || "*",
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps or curl) or any origin (localhost, vercel)
+    if (!origin) return callback(null, true);
+    return callback(null, true);
+  },
   credentials: true
 }));
 app.use(express.json());
